@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _PhancapEgovType = require('../types/PhancapEgovType');
+var _PhancapEgovType = require('../types/PhanCapEgovType');
 
 var _chatEgov = require('../../models/chatEgov');
 

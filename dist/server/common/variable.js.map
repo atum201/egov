@@ -1,0 +1,1 @@
+{"version":3,"sources":["server/common/variable.js"],"names":["userOnline","userIds","socker"],"mappings":";;;;;AAAO,IAAIA,kCAAa,EAAjB,C,CAAqB;AACrB,IAAIC,4BAAU,EAAd,C,CAAkB;AAClB,IAAIC,0BAAS,EAAb,C,CAAiB","file":"variable.js","sourceRoot":"../../../../.."}

@@ -1,0 +1,1 @@
+npm dist/indexEgov.js --database conntectString

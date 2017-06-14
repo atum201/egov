@@ -1,0 +1,55 @@
+<html>
+    <head>
+        <title>Chat Demo</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+        <link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.min.css">
+    </head>
+    <body>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/lodash/4.16.1/lodash.min.js"></script>
+        
+        
+        <style>
+            .hidden{
+                display: none;
+            }
+        </style>
+
+        <div class="row">
+            <select id="action" class="form-control">
+                <option value="jsontostring">JSON to String</option>
+                <option value="stringtojson">String to JSON</option>
+            </select>
+            <br/>
+            <div class="col-lg-6">
+                <textarea id="input" class="form-control"></textarea>
+            </div>
+            <div class="col-lg-6">
+                <textarea id="output" class="form-control"></textarea>
+            </div>
+            
+        </div>
+        <br/>
+        <div class="row">
+            <input type="button" id="run" value="run" class="btn btn-default" />
+        </div>
+        <script type="text/javascript">
+            $("#run").click(function(){
+                if($("#action").val() == "jsontostring"){
+                    var obj = $("#input").val();
+                    console.log(obj,typeof obj);
+                    $("#output").val(JSON.stringify(obj).replace(/"/g, '\\"'));
+                }
+                if($("#action").val() == "stringtojson"){
+                    var obj = JSON.parse($("#input").val());
+                    $("#output").val(JSON.parse($("#input").val()));
+                }
+            });
+            $("#action").change(function(){
+                $("#input").val("");
+                $("#output").val("");
+            });
+
+        </script>
+    </body>
+</html>

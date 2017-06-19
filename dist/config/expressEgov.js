@@ -185,9 +185,11 @@ app.post('/api/dsnguoidung', function (req, res) {
     _bluebird2.default.each(listuser, function (val) {
       return checkUser(val).then(function (user) {});
     }).then(function (originalArray) {
-      return res.send("Đã cập nhật danh sách người dùng");
+      // return res.send("Đã cập nhật danh sách người dùng");
+      return res.send(1);
     }).catch(function (e) {
-      return res.send('updateUser: ' + e.message);
+      // return res.send('updateUser: ' + e.message);
+      return res.send(0);
     });
   }
 });

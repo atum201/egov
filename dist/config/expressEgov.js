@@ -188,8 +188,8 @@ app.post('/api/dsnguoidung', function (req, res) {
       // return res.send("Đã cập nhật danh sách người dùng");
       return res.send("1");
     }).catch(function (e) {
-      // return res.send('updateUser: ' + e.message);
-      return res.send("0");
+      return res.send('updateUser: ' + e.message);
+      // return res.send("0");
     });
   }
 });

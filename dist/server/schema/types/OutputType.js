@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.PhanCapType = exports.DonViCap1Type = exports.DonViCap2Type = exports.DonViCap3Type = exports.DonViCap4Type = exports.MemberType = exports.UserType = exports.RecentType = exports.MessageType = exports.GroupType = undefined;
+exports.PhanCapType = exports.DonViCap1Type = exports.DonViCap2Type = exports.DonViCap3Type = exports.DonViCap4Type = exports.MemberType = exports.UserType = exports.LoginType = exports.RecentType = exports.MessageType = exports.GroupType = undefined;
 
 var _graphql = require('graphql');
 
@@ -42,6 +42,14 @@ var RecentType = exports.RecentType = new _graphql.GraphQLObjectType({
   }
 });
 
+var LoginType = exports.LoginType = new _graphql.GraphQLObjectType({
+  name: "Login",
+  fields: {
+    username: { type: _graphql.GraphQLString },
+    login: { type: _graphql.GraphQLInt }
+  }
+});
+
 var UserType = exports.UserType = new _graphql.GraphQLObjectType({
   name: 'User',
   fields: {
@@ -53,6 +61,7 @@ var UserType = exports.UserType = new _graphql.GraphQLObjectType({
     friends: { type: new _graphql.GraphQLList(_graphql.GraphQLString) },
     recent: { type: new _graphql.GraphQLList(RecentType) },
     status: { type: _graphql.GraphQLString },
+    login: { type: new _graphql.GraphQLList(_graphql.GraphQLInt) },
     first: { type: _graphql.GraphQLInt },
     last: { type: _graphql.GraphQLInt }
   }

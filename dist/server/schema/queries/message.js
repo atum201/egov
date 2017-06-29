@@ -19,9 +19,6 @@ var _lodash2 = _interopRequireDefault(_lodash);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// import Message from '../../models/message';
-// import User from '../../models/user';
-// import Group  from '../../models/group';
 var message = exports.message = {
   type: new _graphql.GraphQLList(_OutputType.MessageType),
   args: {

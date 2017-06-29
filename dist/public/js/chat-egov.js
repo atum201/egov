@@ -11,7 +11,7 @@ var ChatApp = function(user,socket,option){ // tap trung xu ly, dong bo du lieu,
         CHATCONTACT_RELOAD = "reload",
         GET_AVATAR = "get avatar",
 
-        AVATAR_DEFAULT = "/img/male.png",
+        AVATAR_DEFAULT = option.avatar||"/img/male.png",
 
         SOCKET_SEND_MESSAGE = "socket send message",
         SOCKET_GET_MESSAGE = "socket get message",
@@ -615,7 +615,7 @@ var ChatApp = function(user,socket,option){ // tap trung xu ly, dong bo du lieu,
                         var en = _.indexOf(EMOTICON_BASIC_IMAGE,el);
                         $(this).css("border","1px solid #3584d1");
                         _this.emoticon_box.find(".box-detail").find("img").remove();
-                        console.log(el,el[el.length-1]);
+                        // console.log(el,el[el.length-1]);
                         _this.emoticon_box.find(".box-detail").prepend(_imgEmoticon(el));
                         eShortcut.html(EMOTICON_BASIC_SHORTCUT[en]);
                     },function(){
@@ -1302,7 +1302,6 @@ var ChatApp = function(user,socket,option){ // tap trung xu ly, dong bo du lieu,
         this.init = function(){
             var _this = this;
             _this.contact_head.find("i").tooltip({"placement":"left","template":tooltipTemplate});
-            console.log(_this.tab);
             _(_this.tab).forEach(function(tab){
                 _this.contact_tab_content.append(tab);    
             });
@@ -1334,14 +1333,14 @@ var ChatApp = function(user,socket,option){ // tap trung xu ly, dong bo du lieu,
                 })
             });
             // load tab content;
-            console.log(CHAT_CONTACT_LEVEL)
+            // console.log(CHAT_CONTACT_LEVEL)
             if(CHAT_CONTACT_LEVEL){
                 _this.loadPhanCap(_this.phanCapLevel(_phancap,CHAT_CONTACT_LEVEL),true);
-                console.log(_phancap,_this.phanCapLevel(_phancap,CHAT_CONTACT_LEVEL))
+                // console.log(_phancap,_this.phanCapLevel(_phancap,CHAT_CONTACT_LEVEL))
             }
             else{
                 _this.loadDanhSach();
-                console.log("dâd");
+                // console.log("dâd");
             }
             _this.loadFriend(_user.friends);
             _this.loadNhom(_groups);
@@ -1642,7 +1641,6 @@ var ChatApp = function(user,socket,option){ // tap trung xu ly, dong bo du lieu,
             if(_boxs && _boxs.state)
                 state = _boxs.state;
             _loadData(_user.userId,undefined,"online",undefined,undefined,"friend","group",function(data){
-                console.log("12313")
                 _user = _.assign(_user,data.user);
                 _localStorage(STORAGE_USER,_user);
                 _userOnline = data.online;
@@ -1670,7 +1668,7 @@ var ChatApp = function(user,socket,option){ // tap trung xu ly, dong bo du lieu,
                 });
                 _localStorage(STORAGE_CONTACT,_contacts);
                 _userOnline = data.online;
-                console.log(data);
+                // console.log(data);
                 _phancap = data.phancap.phanCap || {};
                 _localStorage(STORAGE_PHANCAP,_phancap);
 

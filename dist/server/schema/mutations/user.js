@@ -18,8 +18,6 @@ var _graphql = require('graphql');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// import Group from '../../models/group';
-// import User from '../../models/user';
 var ADD_CONTACT = "add contact",
     REMOVE_CONTACT = "remove contact",
     OUT_GROUP = "out group",

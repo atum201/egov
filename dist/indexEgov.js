@@ -52,10 +52,8 @@ var _variable = require('./server/common/variable');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// import User from './server/models/user'
-// import Message from './server/models/message'
-// import Group from './server/models/group'
-var randomVersion = (0, _util.randomString)(19);
+console.log(_env2.default, _env2.default.db);
+
 
 _expressEgov2.default.use('/graphql',
 // cors(corsOptions),
@@ -88,52 +86,58 @@ Array.prototype.chunk = function (n) {
 // io.set('origins', '123.30.190.143:7777','10.145.37.72');
 // io.set('origins', 'thongtinnoibo.mic.gov.vn','my.thongtinnoibo.mic.gov.vn','my.mic.gov.vn');
 // io.set('origins');
+var randomVersion = "";
+_chatEgov.PhanCap.findOne({}).sort({ time: -1 }).execAsync().then(function (phancap) {
+  randomVersion = phancap._id.toString();
+  console.log(randomVersion);
+});
+
 io.on('connection', function (socket) {
   socket.on(_constant.SOCKET_SEND_CONNECT, function (data) {
     // user {userId}
     _chatEgov.User.findOneAsync({ userId: data.userId }).then(function (user) {
-      console.log("userOnline", _variable.userOnline);
       if (_variable.userOnline.indexOf(user.id) == -1) {
         _variable.userOnline.push(user.id);
         socket.broadcast.emit(_constant.SOCKET_BROADCAST_CONNECT, user.id);
-        // log truy cap.
-        var timecache = (0, _util.minutediff)(user.last);
-        if (timecache > 15 || !user.last) {
-          // lớn hơn 15 phút, hoặc lần đầu tính là 1 lần đăng nhập mới
-          if (user.first) {
-            var indexstore = (0, _util.monthdiff)(user.first, new Date().getTime());
-            var login = user.login;
-            if (login.length < indexstore) {
-              for (var i = login.length; i < indexstore; i++) {
-                login.push(0);
-              }
-              login.push(1);
-            } else if (login.length === indexstore) {
-              login.push(1);
-            } else {
-
-              var v = login[indexstore];
-              login[indexstore] = v + 1;
-              console.log("increase index: ", v, login[indexstore], indexstore);
-            }
-            _chatEgov.User.updateAsync({ userId: data.userId }, { $set: { login: login, last: new Date().getTime() } });
-          } else {
-            console.log("insert first 1");
-            user.first = new Date().getTime();
-            user.login = [1];
-            user.last = new Date().getTime();
-            user.saveAsync();
+      }
+      // log truy cap: moi lan ket noi tinh la 1 lan truy cap.
+      if (user.first) {
+        var indexstore = (0, _util.monthdiff)(user.first, new Date().getTime());
+        var login = user.login;
+        if (login.length < indexstore) {
+          // có những tháng liền trước đó ko đăng nhập nên ko có dữ liệu.
+          // nên tự động thêm vào 0 cho các tháng trước đó.
+          for (var i = login.length; i < indexstore; i++) {
+            login.push(0);
           }
+          login.push(1);
+        } else if (login.length === indexstore) {
+          // lần đầu đăng nhập trong tháng mới.
+          login.push(1);
+        } else {
+          var v = login[indexstore];
+          login[indexstore] = v + 1;
         }
+        _chatEgov.User.updateAsync({ userId: data.userId }, { $set: { login: login, last: new Date().getTime() } });
+      } else {
+        // first login.
+        user.first = new Date().getTime();
+        user.login = [1];
+        user.last = new Date().getTime();
+        user.saveAsync();
       }
       socket.userId = user.id;
+      // console.log("socket connect",socket.id);
       _variable.socker.push(socket);
+      // for(let i=0;i<socker.length;i++)
+      // console.log("socket "+i,socker[i].id)
       socket.emit(_constant.SOCKET_GET_CONNECT, randomVersion, new Date().getTime());
     });
   });
 
   socket.on('disconnect', function () {
     var uId = socket.userId;
+    console.log("socket disconnect", socket.id);
     _lodash2.default.remove(_variable.socker, function (sk) {
       return sk.userId == socket.userId && sk.id == socket.id;
     });

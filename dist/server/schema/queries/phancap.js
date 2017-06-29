@@ -21,11 +21,6 @@ var convertToGraphQL = function convertToGraphQL(phancap) {
 	return phancaptype;
 };
 
-//const ObjectId = mongoose.Schema.Types.ObjectId;
-
-// import PhanCap from '../../models/phancap';
-
-
 var convertToMemberGraphQL = function convertToMemberGraphQL(users) {
 	var members = [];
 	users.forEach(function (user) {

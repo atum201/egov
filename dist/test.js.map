@@ -1,0 +1,1 @@
+{"version":3,"sources":["test.js"],"names":["console","log","process","argv","length","env","NODE_ENV"],"mappings":";;AAAAA,QAAQC,GAAR,CAAYC,QAAQC,IAAR,CAAa,CAAb,CAAZ,EAA4BD,QAAQC,IAAR,CAAaC,MAAzC,EAAgDF,QAAQG,GAAR,CAAYC,QAA5D","file":"test.js","sourceRoot":".."}

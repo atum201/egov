@@ -60,21 +60,7 @@ var _synchronous2 = _interopRequireDefault(_synchronous);
 
 var _Util = require('./server/helpers/Util');
 
-var _user = require('./server/models/user');
-
-var _user2 = _interopRequireDefault(_user);
-
-var _message = require('./server/models/message');
-
-var _message2 = _interopRequireDefault(_message);
-
-var _group2 = require('./server/models/group');
-
-var _group3 = _interopRequireDefault(_group2);
-
-var _file = require('./server/models/file');
-
-var _file2 = _interopRequireDefault(_file);
+var _chatEgov = require('./server/models/chatEgov');
 
 var _fs = require('fs');
 
@@ -84,21 +70,21 @@ var _graphql = require('graphql');
 
 var _OutputType = require('./server/schema/types/OutputType');
 
-var _message3 = require('./server/schema/queries/message');
+var _message = require('./server/schema/queries/message');
 
-var _group4 = require('./server/schema/queries/group');
+var _group2 = require('./server/schema/queries/group');
 
-var _group5 = _interopRequireDefault(_group4);
+var _group3 = _interopRequireDefault(_group2);
 
 var _phancap = require('./server/schema/queries/phancap');
 
 var _phancap2 = _interopRequireDefault(_phancap);
 
-var _user3 = require('./server/schema/queries/user');
+var _user = require('./server/schema/queries/user');
 
-var _user4 = require('./server/schema/mutations/user');
+var _user2 = require('./server/schema/mutations/user');
 
-var _user5 = _interopRequireDefault(_user4);
+var _user3 = _interopRequireDefault(_user2);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -152,14 +138,14 @@ var updateRecent = function updateRecent(recent, id, type) {
 };
 _express2.default.post('/api/upload', upload, function (req, res) {
   var _loop = function _loop(i) {
-    var file = new _file2.default({
+    var file = new _chatEgov.File({
       fileName: req.files[i].originalname,
       fileType: req.files[i].mimetype,
       path: req.files[i].path,
       creater: (0, _mongodb.ObjectID)(req.body.from)
     });
     file.saveAsync().then(function (file) {
-      var message = new _message2.default({
+      var message = new _chatEgov.Message({
         from: req.body ? (0, _mongodb.ObjectID)(req.body.from) : undefined,
         toGroup: req.body.toGroup ? (0, _mongodb.ObjectID)(req.body.toGroup) : undefined,
         toUser: req.body.toUser ? (0, _mongodb.ObjectID)(req.body.toUser) : undefined,
@@ -175,7 +161,7 @@ _express2.default.post('/api/upload', upload, function (req, res) {
               sk.emit(SOCKET_GET_MESSAGE, message, req.body.temp[i]);
             }
           });
-          _user2.default.findOneAsync({ _id: (0, _mongodb.ObjectID)(message.toUser) }).then(function (user) {
+          _chatEgov.User.findOneAsync({ _id: (0, _mongodb.ObjectID)(message.toUser) }).then(function (user) {
             user.recent = updateRecent(user.recent, message.from.toString());
             user.saveAsync();
           });
@@ -183,7 +169,7 @@ _express2.default.post('/api/upload', upload, function (req, res) {
         if (message.toGroup) {
           // gui tin nhan den cac thanh vien trong group dang online.
           type = "group";
-          _group3.default.findOneAsync({ _id: (0, _mongodb.ObjectID)(message.toGroup) }).then(function (group) {
+          _chatEgov.Group.findOneAsync({ _id: (0, _mongodb.ObjectID)(message.toGroup) }).then(function (group) {
             socker.forEach(function (sk) {
               if (group.member.indexOf(sk.userId) != -1) {
                 sk.emit(SOCKET_GET_MESSAGE, message, req.body.temp[i]);
@@ -192,7 +178,7 @@ _express2.default.post('/api/upload', upload, function (req, res) {
             var idsIn = _lodash2.default.flatMap(group.member, function (m) {
               return (0, _mongodb.ObjectID)(m);
             });
-            _user2.default.findAsync({ _id: { $in: idsIn } }).then(function (users) {
+            _chatEgov.User.findAsync({ _id: { $in: idsIn } }).then(function (users) {
               users.forEach(function (user) {
                 user.recent = updateRecent(user.recent, message.toGroup.toString(), "group");
                 user.saveAsync();
@@ -200,7 +186,7 @@ _express2.default.post('/api/upload', upload, function (req, res) {
             });
           });
         }
-        _user2.default.findOneAsync({ _id: (0, _mongodb.ObjectID)(message.from) }).then(function (user) {
+        _chatEgov.User.findOneAsync({ _id: (0, _mongodb.ObjectID)(message.from) }).then(function (user) {
           if (!user.recent) {
             user.recent = [];
           }
@@ -245,7 +231,6 @@ _express2.default.post('/api/updateUserStruct', uploadUserStruct, function (req,
   }
 });
 _express2.default.post('/api/synchronous', (0, _cors2.default)(), function (req, res) {
-  console.log("synchronous post");
   (0, _synchronous2.default)("http://my.mic.gov.vn/dongbonhansu/dsnhansu.xls").then(function (phancapId) {
     res.send("Nguoi dung da duoc cap nhat tai ban ghi " + phancapId);
     randomVersion = phancapId;
@@ -263,10 +248,11 @@ _express2.default.get('/api/synchronous', (0, _cors2.default)(), function (req, 
   });
 });
 _express2.default.get('/download/:idfile', function (req, res) {
-  _file2.default.get(req.params.idfile).then(function (file) {
+  _chatEgov.File.get(req.params.idfile).then(function (file) {
     res.download(file.path, file.fileName);
   }).error(function (e) {});
 });
+
 var _socket = void 0;
 
 // import updateGroup from './server/schema/mutations/group';
@@ -330,7 +316,7 @@ var updateGroup = {
     var g = _ref.g;
 
     if (g.action === CREATE_GROUP) {
-      var _group = new _group3.default({
+      var _group = new _chatEgov.Group({
         name: g.title || "Nhóm mới",
         creater: g.creater,
         member: g.member || [g.creater]
@@ -339,7 +325,7 @@ var updateGroup = {
         var ids = _lodash2.default.flatMap(group.member, function (m) {
           return (0, _mongodb.ObjectID)(m);
         });
-        _user2.default.findAsync({ _id: { $in: ids } }).then(function (users) {
+        _chatEgov.User.findAsync({ _id: { $in: ids } }).then(function (users) {
           _lodash2.default.forEach(users, function (user) {
             user.groups.push(group.id);
             user.saveAsync();
@@ -350,7 +336,7 @@ var updateGroup = {
       });
     }
     if (g.action === UPDATE_GROUP) {
-      return _group3.default.findOneAsync({ _id: (0, _mongodb.ObjectID)(g.id) }).then(function (group) {
+      return _chatEgov.Group.findOneAsync({ _id: (0, _mongodb.ObjectID)(g.id) }).then(function (group) {
         var memberOut = [];
         var memberIn = [];
         var member = [];
@@ -365,7 +351,7 @@ var updateGroup = {
             return (0, _mongodb.ObjectID)(m);
           });
           // update user out/ in
-          _user2.default.findAsync({ _id: { $in: idsOut } }).then(function (users) {
+          _chatEgov.User.findAsync({ _id: { $in: idsOut } }).then(function (users) {
             _lodash2.default.forEach(users, function (user) {
               user.groups.splice(user.groups.indexOf(g.id), 1);
               user.recent.splice(_lodash2.default.findIndex(user.recent, function (r) {
@@ -374,7 +360,7 @@ var updateGroup = {
               user.saveAsync();
             });
           });
-          _user2.default.findAsync({ _id: { $in: idsIn } }).then(function (users) {
+          _chatEgov.User.findAsync({ _id: { $in: idsIn } }).then(function (users) {
             _lodash2.default.forEach(users, function (user) {
               user.groups.push(g.id); // = _.union(user.groups,g.id);
               user.saveAsync();
@@ -394,12 +380,12 @@ var updateGroup = {
       });
     }
     if (g.action === REMOVE_GROUP) {
-      return _group3.default.findOneAsync({ _id: (0, _mongodb.ObjectID)(g.id) }).then(function (group) {
+      return _chatEgov.Group.findOneAsync({ _id: (0, _mongodb.ObjectID)(g.id) }).then(function (group) {
         if (group) {
           var idsOut = _lodash2.default.flatMap(group.member, function (m) {
             return (0, _mongodb.ObjectID)(m);
           });
-          _user2.default.findAsync({ _id: { $in: idsOut } }).then(function (users) {
+          _chatEgov.User.findAsync({ _id: { $in: idsOut } }).then(function (users) {
             _lodash2.default.forEach(users, function (user) {
               user.groups.splice(user.groups.indexOf(g.id), 1);
               user.recent.splice(_lodash2.default.findIndex(user.recent, function (r) {
@@ -412,7 +398,7 @@ var updateGroup = {
             sk.emit(SOCKET_GET_REMOVE_GROUP, g.id);
             if (_lodash2.default.indexOf(group.member, sk.userId) !== -1) sk.emit(SOCKET_GET_REMOVE_GROUP, g.id);
           });
-          _message2.default.findAsync({ toGroup: g.id }).then(function (messages) {
+          _chatEgov.Message.findAsync({ toGroup: g.id }).then(function (messages) {
             messages.forEach(function (message) {
               return message.removeAsync();
             });
@@ -438,12 +424,14 @@ var schema = new _graphql.GraphQLSchema({
   query: new _graphql.GraphQLObjectType({
     name: 'Query',
     fields: {
-      message: _message3.message,
-      newMessage: _message3.newMessage,
-      group: _group5.default,
-      user: _user3.user,
-      users: _user3.users,
-      userById: _user3.userById,
+      message: _message.message,
+      newMessage: _message.newMessage,
+      group: _group3.default,
+      user: _user.user,
+      users: _user.users,
+      login: _user.login,
+      logins: _user.logins,
+      userById: _user.userById,
       phancap: _phancap2.default,
       online: online
     }
@@ -452,7 +440,7 @@ var schema = new _graphql.GraphQLSchema({
     name: 'Mutation',
     fields: {
       updateGroup: updateGroup,
-      updateUser: _user5.default
+      updateUser: _user3.default
     }
   })
 });
@@ -485,6 +473,10 @@ Array.prototype.chunk = function (n) {
   return [this.slice(0, n)].concat(this.slice(n).chunk(n));
 };
 
+_chatEgov.PhanCap.findOne({}).sort({ time: -1 }).execAsync().then(function (phancap) {
+  randomVersion = phancap._id.toString();
+});
+
 // io.set('origins', '123.30.190.143:7777','10.145.37.72');
 // io.set('origins', 'thongtinnoibo.mic.gov.vn','my.thongtinnoibo.mic.gov.vn','my.mic.gov.vn');
 // io.set('origins');
@@ -492,40 +484,44 @@ io.on('connection', function (socket) {
   _socket = socket;
   socket.on(SOCKET_SEND_CONNECT, function (data) {
     // user {userId}
-    _user2.default.findOneAsync({ userId: data.userId }).then(function (user) {
+    _chatEgov.User.findOneAsync({ userId: data.userId }).then(function (user) {
       if (userOnline.indexOf(user.id) == -1) {
         userOnline.push(user.id);
         socket.broadcast.emit(SOCKET_BROADCAST_CONNECT, user.id);
-        // log truy cap.
-        var timecache = (0, _Util.minutediff)(user.last);
-        if (timecache > 15 || !user.last) {
-          // lớn hơn 15 phút, hoặc lần đầu tính là 1 lần đăng nhập mới
-          if (user.first) {
-            var indexstore = (0, _Util.monthdiff)(user.first, new Date().getTime());
-            var login = user.login;
-            if (login.length < indexstore) {
-              for (var i = login.length; i < indexstore; i++) {
-                login.push(0);
-              }
-              login.push(1);
-            } else if (login.length === indexstore) {
-              login.push(1);
-            } else {
-
-              var v = login[indexstore];
-              login[indexstore] = v + 1;
-              console.log("increase index: ", v, login[indexstore], indexstore);
-            }
-            _user2.default.updateAsync({ userId: data.userId }, { $set: { login: login, last: new Date().getTime() } });
-          } else {
-            console.log("insert first 1");
-            user.first = new Date().getTime();
-            user.login = [1];
-            user.last = new Date().getTime();
-            user.saveAsync();
-          }
-        }
       }
+
+      // log truy cap: moi lan ket noi tinh la 1 lan truy cap.
+      if (user.first) {
+        var indexstore = (0, _Util.monthdiff)(user.first, new Date().getTime());
+        var _login = user.login;
+        if (_login.length < indexstore) {
+          // có những tháng liền trước đó ko đăng nhập nên ko có dữ liệu.
+          // nên tự động thêm vào 0 cho các tháng trước đó.
+          for (var i = _login.length; i < indexstore; i++) {
+            _login.push(0);
+          }
+          _login.push(1);
+        } else if (_login.length === indexstore) {
+          // lần đầu đăng nhập trong tháng mới.
+          _login.push(1);
+        } else {
+          var v = _login[indexstore];
+          _login[indexstore] = v + 1;
+        }
+        _chatEgov.User.updateAsync({ userId: data.userId }, { $set: { login: _login, last: new Date().getTime() } });
+      } else {
+        // first login.
+        user.first = new Date().getTime();
+        user.login = [1];
+        user.last = new Date().getTime();
+        user.saveAsync();
+      }
+
+      var timecache = (0, _Util.minutediff)(user.last);
+      if (timecache > 15 || !user.last) {// lớn hơn 15 phút, hoặc lần đầu tính là 1 lần đăng nhập mới
+
+      }
+
       socket.userId = user.id;
       socker.push(socket);
       socket.emit(SOCKET_GET_CONNECT, randomVersion, new Date().getTime());
@@ -547,7 +543,7 @@ io.on('connection', function (socket) {
 
   socket.on(SOCKET_SEND_MESSAGE, function (data) {
     // data: { from: id, toGroup||toUser: id, content: content };
-    var message = new _message2.default({
+    var message = new _chatEgov.Message({
       from: data.from ? (0, _mongodb.ObjectID)(data.from) : undefined,
       toGroup: data.toGroup ? (0, _mongodb.ObjectID)(data.toGroup) : undefined,
       toUser: data.toUser ? (0, _mongodb.ObjectID)(data.toUser) : undefined,
@@ -561,7 +557,7 @@ io.on('connection', function (socket) {
         socker.forEach(function (sk) {
           if ((sk.userId == message.toUser || sk.userId == message.from) && sk.id != socket.id) sk.emit(SOCKET_GET_MESSAGE, message);
         });
-        _user2.default.findOneAsync({ _id: (0, _mongodb.ObjectID)(message.toUser) }).then(function (user) {
+        _chatEgov.User.findOneAsync({ _id: (0, _mongodb.ObjectID)(message.toUser) }).then(function (user) {
           if (!user.recent) user.recent = [];
           user.recent = updateRecent(user.recent, message.from.toString());
           user.saveAsync();
@@ -570,14 +566,14 @@ io.on('connection', function (socket) {
       if (message.toGroup) {
         // gui tin nhan den cac thanh vien trong group dang online.
         type = "group";
-        _group3.default.findOneAsync({ _id: (0, _mongodb.ObjectID)(message.toGroup) }).then(function (group) {
+        _chatEgov.Group.findOneAsync({ _id: (0, _mongodb.ObjectID)(message.toGroup) }).then(function (group) {
           socker.forEach(function (sk) {
             if ((data.from == sk.userId || group.member.indexOf(sk.userId) != -1) && sk.id != socket.id) sk.emit(SOCKET_GET_MESSAGE, message);
           });
           var idsIn = _lodash2.default.flatMap(group.member, function (m) {
             return (0, _mongodb.ObjectID)(m);
           });
-          _user2.default.findAsync({ _id: { $in: idsIn } }).then(function (users) {
+          _chatEgov.User.findAsync({ _id: { $in: idsIn } }).then(function (users) {
             users.forEach(function (user) {
               user.recent = updateRecent(user.recent, message.toGroup.toString(), "group");
               user.saveAsync();
@@ -585,7 +581,7 @@ io.on('connection', function (socket) {
           });
         });
       }
-      _user2.default.findOneAsync({ _id: (0, _mongodb.ObjectID)(message.from) }).then(function (user) {
+      _chatEgov.User.findOneAsync({ _id: (0, _mongodb.ObjectID)(message.from) }).then(function (user) {
         if (!user.recent) {
           user.recent = [];
         }
@@ -599,7 +595,7 @@ io.on('connection', function (socket) {
 
   socket.on(SOCKET_SEND_UPDATE_GROUP, function (data) {
     // data: groupId
-    _group3.default.findOneAsync({ _id: (0, _mongodb.ObjectID)(data) }).then(function (group) {
+    _chatEgov.Group.findOneAsync({ _id: (0, _mongodb.ObjectID)(data) }).then(function (group) {
       socker.forEach(function (sk) {
         if (group.member.indexOf(sk.userId) != -1 && sk.id != socket.id) sk.emit(SOCKET_GET_UPDATE_GROUP, group);
       });
@@ -608,7 +604,7 @@ io.on('connection', function (socket) {
 
   socket.on(SOCKET_SEND_UPDATE_USER, function (data) {
     // data: userId.
-    _user2.default.findOneAsync({ _id: (0, _mongodb.ObjectID)(data) }).then(function (user) {
+    _chatEgov.User.findOneAsync({ _id: (0, _mongodb.ObjectID)(data) }).then(function (user) {
       socker.forEach(function (sk) {
         if (sk.id != socket.id) sk.emit(SOCKET_GET_UPDATE_USER, user);
       });
@@ -616,7 +612,7 @@ io.on('connection', function (socket) {
   });
 
   socket.on(SOCKET_SEND_NOTIFY, function (receiver, data) {
-    _user2.default.findAsync({ userId: { $in: receiver } }, { id: 1 }).then(function (ids) {
+    _chatEgov.User.findAsync({ userId: { $in: receiver } }, { id: 1 }).then(function (ids) {
       socker.forEach(function (sk) {
         ids.forEach(function (is) {
           if (is.id == sk.userId) {
@@ -630,7 +626,7 @@ io.on('connection', function (socket) {
   socket.on(SOCKET_SEND_READ_MESSAGE, function (data) {
     // {id:id,boxId:id}
 
-    _user2.default.findOneAsync({ _id: (0, _mongodb.ObjectID)(data.id) }).then(function (user) {
+    _chatEgov.User.findOneAsync({ _id: (0, _mongodb.ObjectID)(data.id) }).then(function (user) {
       if (user.recent && user.recent.length > 0) {
         user.recent.forEach(function (r) {
           if (r.id == data.boxId) {
@@ -652,7 +648,7 @@ io.on('connection', function (socket) {
     var month = data.month;
     var year = data.year;
     var result = 0;
-    _user2.default.findOneAsync({ userId: data.username }).then(function (user) {
+    _chatEgov.User.findOneAsync({ userId: data.username }).then(function (user) {
       if (user) {
         if (year === "all" || year === '' || year === 'undefined') {
           for (var j = 0; j < user.login.length; j++) {
@@ -684,7 +680,7 @@ io.on('connection', function (socket) {
     var month = data.month;
     var year = data.year;
     var result = [];
-    _user2.default.findAsync({ userId: { $in: data.users } }).then(function (users) {
+    _chatEgov.User.findAsync({ userId: { $in: data.users } }).then(function (users) {
       if (users) {
         users.forEach(function (user) {
           var ur = { username: user.userId, login: 0 };
@@ -721,7 +717,7 @@ io.on('connection', function (socket) {
 
   socket.on(SOCKET_SEND_DEL_MESSAGE, function (data) {
     // {id:id,boxId:id}
-    _user2.default.findOneAsync({ _id: (0, _mongodb.ObjectID)(data.id) }).then(function (user) {
+    _chatEgov.User.findOneAsync({ _id: (0, _mongodb.ObjectID)(data.id) }).then(function (user) {
       if (user.recent && user.recent.length > 0) {
         user.recent.forEach(function (r) {
           if (r.id == data.boxId) {

@@ -12,18 +12,13 @@ var _xlsx = require('xlsx');
 
 var _xlsx2 = _interopRequireDefault(_xlsx);
 
-var _user = require('./server/models/user');
-
-var _user2 = _interopRequireDefault(_user);
-
-var _phancap = require('./server/models/phancap');
-
-var _phancap2 = _interopRequireDefault(_phancap);
+var _chatEgov = require('./server/models/chatEgov');
 
 var _mongodb = require('mongodb');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+// import User from './server/models/user'
 var to_json = function to_json(workbook) {
 	var result = {};
 	workbook.SheetNames.forEach(function (sheetName) {
@@ -39,12 +34,12 @@ var updateUser = function updateUser(meta) {
 	var a = true;
 	(0, _lodash2.default)(meta).forEach(function (val) {
 		var userId = _lodash2.default.last(_lodash2.default.last(val.TaiKhoan.split('|')).split());
-		_user2.default.findOneAsync({ userId: userId }).then(function (user) {
+		_chatEgov.User.findOneAsync({ userId: userId }).then(function (user) {
 			if (user) {
 				user.nickName = val.HoVaTen || "";
 				if (val.AnhDaiDien) user.avatar = val.AnhDaiDien;
 			} else {
-				user = new _user2.default({
+				user = new _chatEgov.User({
 					userId: userId,
 					nickName: val.HoVaTen || "",
 					avatar: val.AnhDaiDien || null });
@@ -66,7 +61,7 @@ exports.default = function (filePath, calback) {
 			members: []
 		};
 		var delUser = [];
-		_user2.default.listCol({}).then(function (users) {
+		_chatEgov.User.listCol({}).then(function (users) {
 			(0, _lodash2.default)(wbJSON[sheet]).forEach(function (val) {
 				var userId = _lodash2.default.last(_lodash2.default.last(val.TaiKhoan.split('|')).split());
 				var u = _lodash2.default.find(users, { "userId": userId });
@@ -137,7 +132,7 @@ exports.default = function (filePath, calback) {
 					phancap.members.push(member);
 				}
 			});
-			var phanCap = new _phancap2.default({
+			var phanCap = new _chatEgov.PhanCap({
 				phanCap: phancap
 			});
 			phanCap.saveAsync().then(function (pc) {

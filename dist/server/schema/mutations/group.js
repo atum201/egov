@@ -22,10 +22,6 @@ var _chatEgov = require('../../models/chatEgov');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// import User from '../../models/user'
-// import Message from '../../models/message'
-// import Group from '../../models/group'
-
 var g = {
   type: new _graphql.GraphQLInputObjectType({
     name: "groupInput",

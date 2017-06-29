@@ -8,6 +8,10 @@ var _express = require('express');
 
 var _express2 = _interopRequireDefault(_express);
 
+var _mysql = require('./mysql');
+
+var _mysql2 = _interopRequireDefault(_mysql);
+
 var _bodyParser = require('body-parser');
 
 var _bodyParser2 = _interopRequireDefault(_bodyParser);
@@ -66,10 +70,6 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// import File from '../server/models/file'
-// import User from '../server/models/user'
-// import PhanCap from '../server/models/phancap'
-// import Message from '../server/models/message'
 var app = (0, _express2.default)();
 
 // parse body params and attache them to req.body
@@ -179,17 +179,16 @@ var checkUser = function checkUser(val) {
     });
   });
 };
+
 app.post('/api/dsnguoidung', function (req, res) {
   if (req.body) {
     var listuser = req.body; // [user]
     _bluebird2.default.each(listuser, function (val) {
       return checkUser(val).then(function (user) {});
     }).then(function (originalArray) {
-      // return res.send("Đã cập nhật danh sách người dùng");
-      return res.send("1");
+      return res.send(1);
     }).catch(function (e) {
-      return res.send('updateUser: ' + e.message);
-      // return res.send("0");
+      return res.send(0);
     });
   }
 });
@@ -258,6 +257,12 @@ app.post('/api/capnhatphancap', function (req, res) {
       });
     });
   }
+});
+
+app.post('/api/capnhatmysql', function (req, res) {
+  (0, _mysql2.default)().then(function (result) {
+    res.send(result);
+  });
 });
 
 exports.default = app;

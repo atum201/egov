@@ -4,6 +4,10 @@
   "description": "chat app with nodejs, socket.io, mongodb,jquery",
   "author": "atum<atum201@gmail.com>",
   "main": "dist/indexEgov.js",
+  "scripts": {
+    "qlvb":"node dist/index.js mongodb://qlvb:QLVB20119@localhost:6996/qlvb 3000",
+    "egov":"NODE_ENV=egov node dist/indexEgov.js"
+  },
   "keywords": [
     "express",
     "node",

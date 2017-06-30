@@ -5,9 +5,9 @@
   "author": "atum<atum201@gmail.com>",
   "main": "dist/indexEgov.js",
   "scripts": {
-    "qlvb":"node dist/index.js mongodb://qlvb:QLVB20119@localhost:6996/qlvb 3000",
-    "egov":"NODE_ENV=egov node dist/indexEgov.js",
-    "egovForever":"NODE_ENV=egov forever start dist/indexEgov.js"
+    "qlvb": "node dist/index.js mongodb://qlvb:QLVB20119@localhost:6996/qlvb 3000",
+    "egov": "NODE_ENV=egov node dist/indexEgov.js",
+    "egovForever": "NODE_ENV=egov forever start dist/indexEgov.js"
   },
   "keywords": [
     "express",
@@ -34,6 +34,7 @@
     "mongoose": "^4.10.1",
     "morgan": "1.7.0",
     "multer": "^1.3.0",
+    "mysql": "^2.13.0",
     "socket.io": "^1.7.4",
     "xlsx": "^0.8.0"
   },

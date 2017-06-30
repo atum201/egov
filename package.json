@@ -6,7 +6,8 @@
   "main": "dist/indexEgov.js",
   "scripts": {
     "qlvb":"node dist/index.js mongodb://qlvb:QLVB20119@localhost:6996/qlvb 3000",
-    "egov":"NODE_ENV=egov node dist/indexEgov.js"
+    "egov":"NODE_ENV=egov node dist/indexEgov.js",
+    "egovForever":"NODE_ENV=egov forever start dist/indexEgov.js"
   },
   "keywords": [
     "express",
